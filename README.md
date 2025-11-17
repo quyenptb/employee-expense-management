@@ -36,7 +36,7 @@ Key highlights:
 - **Build Tool**: Maven
 
 ## Workflow Summary
-![Basic Expense Request Flow](https://github.com/quyenptb/employee-expense-management/blob/main/src/main/resources/basic-flow.png?raw=true "Basic Expense Request Flow")
+![Basic Expense Request Flow](https://github.com/quyenptb/employee-expense-management/blob/main/src/main/resources/basic-workflow.png?raw=true "Basic Expense Request Flow")
 
 ## Sequence Diagram
 ### Login get JWT
