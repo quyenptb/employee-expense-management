@@ -1,0 +1,67 @@
+spring:
+  datasource:
+    url: jdbc:oracle:thin:@localhost:1521/orcl21pdb1
+    driver-class-name: oracle.jdbc.OracleDriver
+    username: expense_request
+    password: 123
+  jpa:
+    database-platform: org.hibernate.dialect.OracleDialect
+    hibernate:
+      ddl-auto: validate # hoặc create-drop nếu muốn drop table khi shutdown
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  sql:
+    init:
+      mode: never
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    enabled: true
+    # Nếu muốn drop DB và chạy lại từ đầu (chỉ dùng lúc dev):
+    drop-first: false
+
+jwt:
+  secret:
+    key: 
+  expiration:
+    ms: 86400000
+
+jira:
+  base-url: https://phanquyenbtx-1765007229007.atlassian.net/
+  email: phanquyenbtx@gmail.com
+  api-token: 
+
+
+firebase:
+  bucket-name: 
+
+# --- ZOHO OAUTH CONFIGURATION ---
+zoho:
+  client-id: 
+  client-secret: 
+  redirect-uri: http://localhost:8080/api/zoho/callback
+
+  accounts-url: https://accounts.zoho.com
+  api-url: https://people.zoho.com/people/api
+
+  scopes: ZOHOPEOPLE.employee.ALL,ZOHOPEOPLE.forms.ALL
+
+slack:
+  webhook:
+    url: https://hooks.slack.com/services/...
+
+
+intuit:
+  oauth2:
+    clientId: 
+    clientSecret: 
+    redirectUri: http://localhost:8080/api/qbo/oauth2redirect
+    authorizationUrl: https://appcenter.intuit.com/connect/oauth2
+    tokenUrl: https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer
+    scopes: com.intuit.quickbooks.accounting openid profile email phone address
+    apiUrl: https://sandbox-quickbooks.api.intuit.com/v3/company/
+  accounting:
+    default-expense-account-id: 1
+
+
