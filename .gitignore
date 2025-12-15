@@ -43,11 +43,9 @@ src/test/java/com/example/secretweapon/exported_source_code/
 src/main/java/com/example/secretweapon/exported_source_code/
 
 
-application.yaml
 
-application.properties
 
 src/main/resources/application.yaml
-
+src/main/resources/application.yaml
 
 **.log
