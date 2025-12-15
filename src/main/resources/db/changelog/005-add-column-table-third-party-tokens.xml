@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <!-- Thêm cột realm_id vào bảng third_party_tokens để lưu ID công ty QuickBooks -->
+    <changeSet id="015-add-realm-id-to-third-party-tokens" author="secretweapon">
+        <addColumn tableName="third_party_tokens">
+            <column name="realm_id" type="VARCHAR(255)">
+                <!-- 
+                  realmId là ID công ty của QuickBooks, luôn được cung cấp 
+                  khi kết nối thành công, nên ta đặt nullable=true 
+                -->
+                <constraints nullable="true"/> 
+            </column>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

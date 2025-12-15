@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+  
+    <!-- Include file tạo bảng schema -->
+    <include file="db/changelog/001-initial-schema.xml"/>
+
+    <!-- Include file insert dữ liệu ban đầu -->
+    <include file="db/changelog/002-initial-data.xml"/>
+
+    <include file="db/changelog/003-update-receipt-url-length.xml"/> 
+
+    <include file="db/changelog/004-create-table-third-party-tokens.xml"/>
+    
+    <include file="db/changelog/005-add-column-table-third-party-tokens.xml"/>
+
+</databaseChangeLog>
+
+

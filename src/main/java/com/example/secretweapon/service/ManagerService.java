@@ -2,18 +2,23 @@ package com.example.secretweapon.service;
 
 
 
-import com.example.secretweapon.model.dto.ApprovalRequest;
-import com.example.secretweapon.model.dto.ExpenseRequestDto;
 import com.example.secretweapon.exception.AccessDeniedException;
 import com.example.secretweapon.exception.BadRequestException;
 import com.example.secretweapon.exception.ResourceNotFoundException;
+import com.example.secretweapon.mapper.ExpenseMapper;
+import com.example.secretweapon.mapper.ProjectMapper;
 import com.example.secretweapon.model.entity.ExpenseRequest;
 import com.example.secretweapon.model.entity.RequestHistory;
 import com.example.secretweapon.model.entity.User;
 import com.example.secretweapon.model.enums.ExpenseStatus;
 import com.example.secretweapon.model.enums.HistoryAction;
+import com.example.secretweapon.payload.request.ApprovalRequest;
+import com.example.secretweapon.payload.response.ExpenseRequestResponse;
+import com.example.secretweapon.payload.response.ProjectResponse;
 import com.example.secretweapon.repository.ExpenseRequestRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.secretweapon.repository.ProjectRepository;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,43 +26,52 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class ManagerService {
+@RequiredArgsConstructor
+public class ManagerService {    
+    private final ExpenseRequestRepository expenseRepository;
 
-    @Autowired
-    private ExpenseRequestRepository expenseRepository;
+    private final ProjectRepository projectRepository;
 
-    // Lấy các request đang chờ manager duyệt (EPIC 03)
-    public List<ExpenseRequestDto> getTeamPendingRequests(User manager) {
-        return expenseRepository.findByStatusAndEmployee_ManagerOrderByCreatedAtAsc(
+    private final ProjectMapper projectMapper;
+
+    private final ExpenseMapper expenseMapper;
+
+    public List<ExpenseRequestResponse> getTeamPendingRequests(User manager) {
+        return expenseRepository.findByStatusAndRequester_ManagerOrderByCreatedAtAsc(
                 ExpenseStatus.PENDING_MANAGER,
                 manager
-        ).stream().map(ExpenseRequestDto::new).collect(Collectors.toList());
+        ).stream().map(expenseMapper::toResponse).collect(Collectors.toList());
     }
 
-    // Manager duyệt request (EPIC 03)
     @Transactional
-    public ExpenseRequestDto approveRequest(Long requestId, User manager, ApprovalRequest approvalRequest) {
+    public ExpenseRequestResponse approveRequest(Long requestId, User manager, ApprovalRequest approvalRequest) {
         ExpenseRequest request = findRequestAndCheckManager(requestId, manager);
 
         if (request.getStatus() != ExpenseStatus.PENDING_MANAGER) {
-            throw new BadRequestException("Request không ở trạng thái PENDING_MANAGER");
+            throw new BadRequestException("Request is not in state PENDING_MANAGER");
         }
 
-        request.setStatus(ExpenseStatus.PENDING_FINANCE); // Chuyển cho Finance
+        if (request.getHasSpecialApproval() != null && request.getHasSpecialApproval()) {
+        // PM duyệt request có cờ đặc biệt -> Chuyển thẳng lên Finance
+        request.setStatus(ExpenseStatus.PENDING_FINANCE); 
         request.addHistory(new RequestHistory(
-                request,
-                manager,
-                HistoryAction.MANAGER_APPROVED,
-                approvalRequest.getComment()
+            request, manager, HistoryAction.MANAGER_APPROVED_SPECIAL, approvalRequest.getComment()
         ));
-
-        ExpenseRequest savedRequest = expenseRepository.save(request);
-        return new ExpenseRequestDto(savedRequest);
+    } else {
+        //Normal Flow
+        request.setStatus(ExpenseStatus.PENDING_FINANCE);
+        request.addHistory(new RequestHistory(
+            request, manager, HistoryAction.MANAGER_APPROVED, approvalRequest.getComment()
+        ));
     }
 
-    // Manager từ chối request (EPIC 03)
+
+        ExpenseRequest savedRequest = expenseRepository.save(request);
+        return expenseMapper.toResponse(savedRequest);
+    }
+
     @Transactional
-    public ExpenseRequestDto rejectRequest(Long requestId, User manager, ApprovalRequest approvalRequest) {
+    public ExpenseRequestResponse rejectRequest(Long requestId, User manager, ApprovalRequest approvalRequest) {
         if (approvalRequest.getComment() == null || approvalRequest.getComment().isBlank()) {
             throw new BadRequestException("Phải cung cấp lý do khi từ chối");
         }
@@ -65,10 +79,10 @@ public class ManagerService {
         ExpenseRequest request = findRequestAndCheckManager(requestId, manager);
 
         if (request.getStatus() != ExpenseStatus.PENDING_MANAGER) {
-            throw new BadRequestException("Request không ở trạng thái PENDING_MANAGER");
+            throw new BadRequestException("Request is not in state PENDING_MANAGER");
         }
 
-        request.setStatus(ExpenseStatus.REJECTED_MANAGER); // Trả về
+        request.setStatus(ExpenseStatus.MANAGER_REJECTED); 
         request.addHistory(new RequestHistory(
                 request,
                 manager,
@@ -77,7 +91,7 @@ public class ManagerService {
         ));
 
         ExpenseRequest savedRequest = expenseRepository.save(request);
-        return new ExpenseRequestDto(savedRequest);
+        return expenseMapper.toResponse(savedRequest);
     }
 
 
@@ -89,10 +103,26 @@ public class ManagerService {
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy request với ID: " + requestId));
 
         // Kiểm tra xem manager có phải là manager của employee tạo request không
-        if (request.getEmployee().getManager() == null ||
-                request.getEmployee().getManager().getId() != manager.getId()) {
+        if (request.getRequester().getManager() == null ||
+                request.getRequester().getManager().getId() != manager.getId()) {
             throw new AccessDeniedException("Bạn không phải là manager của người tạo request này");
         }
         return request;
     }
+
+ 
+public List<ProjectResponse> getMyProjects(User manager) {
+    return projectRepository.findByManager_Id(manager.getId())
+            .stream()
+            .map(projectMapper::toResponse)
+            .collect(Collectors.toList());
+}
+
+
+public List<ExpenseRequestResponse> getManagerHistory(User manager) {
+    return expenseRepository.findHistoryByManager(manager.getId())
+            .stream()
+            .map(expenseMapper::toResponse)
+            .collect(Collectors.toList());
+}
 }

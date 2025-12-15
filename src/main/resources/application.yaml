@@ -2,7 +2,7 @@ spring:
   datasource:
     url: jdbc:oracle:thin:@localhost:1521/orcl21pdb1
     driver-class-name: oracle.jdbc.OracleDriver
-    username: C##mbatch_user
+    username: expense_request
     password: 123
   jpa:
     database-platform: org.hibernate.dialect.OracleDialect
@@ -15,9 +15,53 @@ spring:
   sql:
     init:
       mode: never
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    enabled: true
+    # Nếu muốn drop DB và chạy lại từ đầu (chỉ dùng lúc dev):
+    drop-first: false
 
 jwt:
   secret:
     key: Z3VqQ2VydFNlY3JldEtleU15U3RyaW5nMTIzNDU2Nzg=
   expiration:
     ms: 86400000
+
+jira:
+  base-url: https://phanquyenbtx-1765007229007.atlassian.net/
+  email: phanquyenbtx@gmail.com
+  api-token: ATATT3xFfGF0D0XMJKqAC7KdM_gIVTA11rqnp529EJhXKn2qtSs5c2yqblJ4bd4knAmjc32QFglVztdfF2dWWLpkosQH4nbCPY1sREa6T8_qd2jcUPXQzvgeMaU1XX-qhB9-X_pJyNuFv93g_sE8BmfWkYavPXNzsRkNWJ9U3w6RxyjteivclCw=D4D4ECCC
+
+
+firebase:
+  bucket-name: expense-request-a709b.firebasestorage.app
+
+# --- ZOHO OAUTH CONFIGURATION ---
+zoho:
+  client-id: 1000.8Z0EGMM4R15CYYNYGT4BW00VTR1GMN
+  client-secret: 3e91cf4d4f5d3b911e3ce2960c26d2576ec86f2d2b
+  redirect-uri: http://localhost:8080/api/zoho/callback
+
+  accounts-url: https://accounts.zoho.com
+  api-url: https://people.zoho.com/people/api
+
+  scopes: ZOHOPEOPLE.employee.ALL,ZOHOPEOPLE.forms.ALL
+
+slack:
+  webhook:
+    url: https://hooks.slack.com/services/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
+
+
+intuit:
+  oauth2:
+    clientId: ABfraDnNapQV15bIaGlYSEgBrXIePm8Do8rHxr9RinGYkR8vxK
+    clientSecret: VKsvinDvXJ255WhaIFmMvnVf6n4dLGclaApxlwzF
+    redirectUri: http://localhost:8080/api/qbo/oauth2redirect
+    authorizationUrl: https://appcenter.intuit.com/connect/oauth2
+    tokenUrl: https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer
+    scopes: com.intuit.quickbooks.accounting openid profile email phone address
+    apiUrl: https://sandbox-quickbooks.api.intuit.com/v3/company/
+  accounting:
+    default-expense-account-id: 1
+
+

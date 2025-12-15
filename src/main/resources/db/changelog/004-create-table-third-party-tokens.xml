@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <!-- 14. Bảng THIRD_PARTY_TOKENS (Lưu Token OAuth2) -->
+    <changeSet id="014-create-table-third-party-tokens" author="secretweapon">
+        <createTable tableName="third_party_tokens">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            
+            <!-- Provider: ZOHO, JIRA, v.v. -->
+            <column name="provider" type="VARCHAR(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            
+            <column name="access_token" type="VARCHAR(2000)"/>
+            
+            <column name="refresh_token" type="VARCHAR(2000)"/>
+            
+            <column name="expires_in_seconds" type="BIGINT"/>
+            
+            <column name="token_created_at" type="TIMESTAMP"/>
+            
+            <column name="created_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

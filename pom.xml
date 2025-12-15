@@ -96,37 +96,153 @@
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-vision</artifactId>
-            <version>3.40.0</version> </dependency>
+            <version>3.40.0</version> 
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.mapstruct/mapstruct -->
+<dependency>
+    <groupId>org.mapstruct</groupId>
+    <artifactId>mapstruct</artifactId>
+    <version>1.6.3</version>
+</dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+        </dependency>
+
+        <dependency>
+    <groupId>com.google.firebase</groupId>
+    <artifactId>firebase-admin</artifactId>
+    <version>9.2.0</version>
+</dependency>
+<dependency>
+    <groupId>org.jeasy</groupId>
+    <artifactId>easy-rules-core</artifactId>
+    <version>4.1.0</version>
+</dependency>
+<!-- Trong pom.xml của Maven -->
+<dependency>
+    <groupId>dev.brachtendorf</groupId>
+    <artifactId>JImageHash</artifactId>
+    <version>1.0.0</version>
+</dependency>
+<!-- https://mvnrepository.com/artifact/com.h2database/h2 -->
+<dependency>
+    <groupId>com.h2database</groupId>
+    <artifactId>h2</artifactId>
+    <version>2.3.232</version>
+    <scope>test</scope>
+</dependency>
 
     </dependencies>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<annotationProcessorPaths>
-						<path>
-							<groupId>org.projectlombok</groupId>
-							<artifactId>lombok</artifactId>
-						</path>
-					</annotationProcessorPaths>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
-					<excludes>
-						<exclude>
-							<groupId>org.projectlombok</groupId>
-							<artifactId>lombok</artifactId>
-						</exclude>
-					</excludes>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </path>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>1.6.3</version> </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok-mapstruct-binding</artifactId>
+                            <version>0.2.0</version>
+                        </path>
+                    </annotationProcessorPaths>
+                    <compilerArgs>
+                        <arg>-parameters</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>0.8.11</version> 
+            <executions>
+                <!-- 1. Chuẩn bị Agent trước khi test chạy -->
+                <execution>
+                    <id>prepare-agent</id>
+                    <goals>
+                        <goal>prepare-agent</goal>
+                    </goals>
+                </execution>
+                
+                <!-- 2. Create report -->
+                <execution>
+                    <id>report</id>
+                    <phase>test</phase> <!-- Gắn vào phase test -->
+                    <goals>
+                        <goal>report</goal>
+                    </goals>
+                    <configuration>
+                        <!-- Loại bỏ các file không cần đo coverage (DTO, Config, Exception...) -->
+                        <excludes>
+                            <exclude>com/example/secretweapon/model/**</exclude>
+                            <exclude>com/example/secretweapon/payload/**</exclude>
+                            <exclude>com/example/secretweapon/config/**</exclude>
+                            <exclude>com/example/secretweapon/exception/**</exclude>
+                            <exclude>com/example/secretweapon/mapper/**</exclude>
+
+                            <exclude>com/example/secretweapon/SecretweaponApplication.class</exclude>
+                        </excludes>
+                        
+                    </configuration>
+                </execution>
+                
+                <!-- 3. (Tùy chọn) Chặn build nếu coverage thấp hơn ngưỡng quy định -->
+                <!-- Ví dụ: Nếu coverage dưới 80% thì báo lỗi build fail -->
+                <!--
+                <execution>
+                    <id>check</id>
+                    <goals>
+                        <goal>check</goal>
+                    </goals>
+                    <configuration>
+                        <rules>
+                            <rule>
+                                <element>BUNDLE</element>
+                                <limits>
+                                    <limit>
+                                        <counter>LINE</counter>
+                                        <value>COVEREDRATIO</value>
+                                        <minimum>0.80</minimum>
+                                    </limit>
+                                </limits>
+                            </rule>
+                        </rules>
+                    </configuration>
+                </execution>
+                -->
+            </executions>
+        </plugin>
+
+        </plugins>
+    </build>
 
 </project>

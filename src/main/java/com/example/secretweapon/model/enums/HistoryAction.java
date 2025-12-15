@@ -8,5 +8,6 @@ public enum HistoryAction {
     FINANCE_APPROVED,
     FINANCE_REJECTED,
     MARKED_AS_PAID,
-    PAID
+    PAID,
+    MANAGER_APPROVED_SPECIAL
 }

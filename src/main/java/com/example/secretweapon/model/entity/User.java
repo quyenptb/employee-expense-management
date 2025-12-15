@@ -1,12 +1,13 @@
 package com.example.secretweapon.model.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import com.example.secretweapon.model.enums.JobTitle;
+import com.example.secretweapon.model.enums.UserStatus;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -15,9 +16,10 @@ import java.util.Collections;
 @Table(name = "users")
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 public class User implements UserDetails {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id") 
@@ -29,7 +31,7 @@ public class User implements UserDetails {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "password", nullable = false)
+    @Column(name = "user_password", nullable = false)
     private String password;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -40,8 +42,23 @@ public class User implements UserDetails {
     @JoinColumn(name = "manager_id")
     private User manager;
 
-    @Column(name = "avatar_url")
+    @Column(name = "avatar_url", length = 1000)
     private String avatarUrl;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "job_title")
+    private JobTitle jobTitle;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "department_id")
+    private Department department;
+
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private UserStatus status;
+
+    @Column(columnDefinition = "json")
+    private String metadata;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -71,4 +88,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() { return true; }
+
+
+    
 }

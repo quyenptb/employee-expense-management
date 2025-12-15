@@ -2,9 +2,10 @@ package com.example.secretweapon.service;
 
 
 import com.example.secretweapon.exception.InvalidPasswordException;
-import com.example.secretweapon.model.dto.AuthResponse;
-import com.example.secretweapon.model.dto.LoginRequest;
 import com.example.secretweapon.model.entity.User;
+import com.example.secretweapon.payload.request.LoginRequest;
+import com.example.secretweapon.payload.response.AuthResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -43,12 +44,10 @@ public class AuthService {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            // get user details
             User user = (User) authentication.getPrincipal();
 
             String jwt = jwtService.generateToken(user);
 
-            //Get Role list
             List<String> roles = user.getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)
                     .collect(Collectors.toList());
