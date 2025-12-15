@@ -1,0 +1,38 @@
+name: Java CI with Maven (Automated Checks)
+
+on:
+  push:
+    branches: [ "main", "develop" ] # Chạy khi push thẳng vào main/develop
+  pull_request:
+    branches: [ "main", "develop" ] # Chạy khi tạo PR vào main/develop
+
+jobs:
+  test-and-verify:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Lấy code mới nhất về
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # 2. Cài đặt Java 17 (Chuẩn cho Spring Boot 3)
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: 'maven' # Tự động cache thư viện để chạy nhanh hơn
+
+    # 3. Cấp quyền chạy cho file mvnw
+    - name: Grant execute permission for mvnw
+      run: chmod +x mvnw
+
+    # 4. CHẠY TOÀN BỘ TEST (Unit Test & Integration Test)
+    # Lệnh này sẽ build project và chạy tất cả các file test.
+    # Nếu có BẤT KỲ test nào fail, bước này sẽ báo lỗi đỏ lòm và chặn PR.
+    - name: Run Tests with Maven
+      run: ./mvnw test
+
+    # (Tùy chọn) 5. Hiển thị kết quả Coverage nếu cần check nhanh
+    # - name: Generate JaCoCo Report
+    #   run: ./mvnw jacoco:report
