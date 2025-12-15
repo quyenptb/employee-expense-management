@@ -1,7 +1,7 @@
 package com.example.secretweapon.controller;
 
-import com.example.secretweapon.model.dto.AuthResponse;
-import com.example.secretweapon.model.dto.LoginRequest;
+import com.example.secretweapon.payload.request.LoginRequest;
+import com.example.secretweapon.payload.response.AuthResponse;
 import com.example.secretweapon.service.AuthService;
 import com.example.secretweapon.service.PasswordValidatorService;
 import jakarta.validation.Valid;

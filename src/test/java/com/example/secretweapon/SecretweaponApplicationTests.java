@@ -6,7 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 
 @SpringBootTest
-@Disabled
+//@Disabled
 class SecretweaponApplicationTests {
 
 	@Test

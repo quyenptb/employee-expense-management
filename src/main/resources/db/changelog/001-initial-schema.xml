@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <!-- 1. Bảng ROLES -->
+    <changeSet id="001-create-table-roles" author="secretweapon">
+        <createTable tableName="roles">
+            <column name="id" type="INT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(20)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- 2. Bảng DEPARTMENTS (Chưa có FK manager_id để tránh vòng lặp) -->
+    <changeSet id="002-create-table-departments" author="secretweapon">
+        <createTable tableName="department">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="parent_id" type="BIGINT"/>
+            <column name="manager_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+
+    <!-- 3. Bảng USERS -->
+    <changeSet id="003-create-table-users" author="secretweapon">
+        <createTable tableName="users">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="full_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="user_password" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="avatar_url" type="VARCHAR(1000)"/>
+            <column name="job_title" type="VARCHAR(50)"/>
+            <column name="status" type="VARCHAR(32)"/>
+            <column name="metadata" type="VARCHAR2(4000)"/> <!-- Oracle dùng CLOB cho JSON lớn -->
+
+            <!-- Foreign Keys Columns -->
+            <column name="role_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="manager_id" type="BIGINT"/>
+            <column name="department_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+
+    <!-- 4. Bảng PROJECTS -->
+    <changeSet id="004-create-table-projects" author="secretweapon">
+        <createTable tableName="projects">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="jira_key" type="VARCHAR(50)">
+                <constraints unique="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="start_date" type="TIMESTAMP"/>
+            <column name="end_date" type="TIMESTAMP"/>
+            <column name="budget_total" type="DECIMAL(19, 2)"/>
+            <column name="budget_used" type="DECIMAL(19, 2)"/>
+            <column name="status" type="VARCHAR(32)"/>
+            <column name="metadata" type="VARCHAR2(4000)"/>
+            <column name="created_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+
+            <column name="manager_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+
+    <!-- 5. Bảng EXPENSE_REQUESTS -->
+    <changeSet id="005-create-table-expense-requests" author="secretweapon">
+        <createTable tableName="expense_requests">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="request_no" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="title" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(255)"/> <!-- Oracle varchar mặc định 255 byte -->
+            <column name="amount_total" type="DECIMAL(19, 2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="currency" type="VARCHAR(32)"/>
+            <column name="status" type="VARCHAR(32)"> <!-- Enum Mapping -->
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+            <column name="attachments" type="VARCHAR2(4000)"/>
+            <column name="metadata" type="VARCHAR2(4000)"/>
+            <column name="is_anomalous" type="BOOLEAN"/>
+            <column name="has_special_approval" type="BOOLEAN"/>
+            <column name="special_approval_reason" type="VARCHAR(1000)"/>
+
+            <column name="requester_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="project_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- 6. Bảng EXPENSE_ITEM -->
+    <changeSet id="006-create-table-expense-item" author="secretweapon">
+        <createTable tableName="expense_item">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="item_type" type="VARCHAR(50)"/>
+            <column name="amount" type="DECIMAL(19, 2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(255)"/>
+            <column name="receipt_url" type="VARCHAR(500)"/>
+            <column name="incurred_date" type="TIMESTAMP"/>
+
+            <column name="request_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+
+    <!-- 7. Bảng REQUEST_HISTORY -->
+    <changeSet id="007-create-table-request-history" author="secretweapon">
+        <createTable tableName="request_history">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="action" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="history_comment" type="VARCHAR(1000)"/>
+            <column name="created_at" type="TIMESTAMP"/>
+
+            <column name="request_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="actor_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- 8. Bảng RULE -->
+    <changeSet id="008-create-table-rule" author="secretweapon">
+        <createTable tableName="rule">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="job_title" type="VARCHAR(50)"/>
+            <column name="limit_amount" type="DECIMAL(19, 2)"/>
+            <column name="limit_count_per_period" type="INT"/>
+            <column name="period" type="VARCHAR(20)"/>
+            <column name="require_special_approval" type="BOOLEAN"/>
+            <column name="priority" type="INT"/>
+            <column name="enabled" type="BOOLEAN"/>
+
+            <column name="role_id" type="INT"/>
+            <column name="project_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+
+    <!-- 9. Bảng APPROVAL -->
+    <changeSet id="009-create-table-approval" author="secretweapon">
+        <createTable tableName="approval">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="approver_role_name" type="VARCHAR(32)"/>
+            <column name="decision" type="VARCHAR(32)"/>
+            <column name="comment" type="VARCHAR(1000)"/>
+            <column name="created_at" type="TIMESTAMP"/>
+
+            <column name="expense_request_id" type="BIGINT"/>
+            <column name="approver_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+
+    <!-- 10. Bảng ANOMALY_FLAG -->
+    <changeSet id="010-create-table-anomaly-flag" author="secretweapon">
+        <createTable tableName="anomaly_flag">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="score" type="INT"/>
+            <column name="details" type="VARCHAR2(4000)"/>
+            <column name="created_at" type="TIMESTAMP"/>
+
+            <column name="expense_request_id" type="BIGINT"/>
+            <column name="rule_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+
+    <!-- 11. Bảng USER_PROJECTS (Many to Many) -->
+    <changeSet id="011-create-table-user-projects" author="secretweapon">
+        <createTable tableName="user_projects">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="start_date" type="TIMESTAMP"/>
+            <column name="end_date" type="TIMESTAMP"/>
+            <column name="role_in_project" type="VARCHAR(255)"/>
+
+            <column name="user_id" type="BIGINT"/>
+            <column name="project_id" type="BIGINT"/>
+        </createTable>
+        <addUniqueConstraint tableName="user_projects" columnNames="user_id, project_id" constraintName="uk_user_project"/>
+    </changeSet>
+
+    <!-- 12. Bảng NOTIFICATION -->
+    <changeSet id="012-create-table-notification" author="secretweapon">
+        <createTable tableName="notification">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="target_user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="template_key" type="VARCHAR(255)"/>
+            <column name="status" type="VARCHAR(32)"/>
+            <column name="payload" type="VARCHAR2(4000)"/>
+            <column name="created_at" type="TIMESTAMP"/>
+        </createTable>
+    </changeSet>
+
+    <!-- 13. Bảng PROJECT_BUDGET_HISTORY -->
+    <changeSet id="013-create-table-project-budget-history" author="secretweapon">
+        <createTable tableName="project_budget_history">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="delta_amount" type="DECIMAL(19, 2)"/>
+            <column name="reason" type="VARCHAR2(255)"/>
+            <column name="created_at" type="TIMESTAMP"/>
+
+            <column name="project_id" type="BIGINT"/>
+            <column name="user_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+
+    <!-- ============================================ -->
+    <!-- ADD FOREIGN KEYS (Sau cùng để tránh lỗi) -->
+    <!-- ============================================ -->
+
+    <changeSet id="100-add-foreign-keys" author="secretweapon">
+        <!-- User Relations -->
+        <addForeignKeyConstraint baseTableName="users" baseColumnNames="role_id" referencedTableName="roles" referencedColumnNames="id" constraintName="fk_user_role"/>
+        <addForeignKeyConstraint baseTableName="users" baseColumnNames="manager_id" referencedTableName="users" referencedColumnNames="id" constraintName="fk_user_manager"/>
+        <addForeignKeyConstraint baseTableName="users" baseColumnNames="department_id" referencedTableName="department" referencedColumnNames="id" constraintName="fk_user_department"/>
+
+        <!-- Department Relations -->
+        <addForeignKeyConstraint baseTableName="department" baseColumnNames="parent_id" referencedTableName="department" referencedColumnNames="id" constraintName="fk_dept_parent"/>
+        <addForeignKeyConstraint baseTableName="department" baseColumnNames="manager_id" referencedTableName="users" referencedColumnNames="id" constraintName="fk_dept_manager"/>
+
+        <!-- Project Relations -->
+        <addForeignKeyConstraint baseTableName="projects" baseColumnNames="manager_id" referencedTableName="users" referencedColumnNames="id" constraintName="fk_project_manager"/>
+
+        <!-- Expense Request Relations -->
+        <addForeignKeyConstraint baseTableName="expense_requests" baseColumnNames="requester_id" referencedTableName="users" referencedColumnNames="id" constraintName="fk_expense_requester"/>
+        <addForeignKeyConstraint baseTableName="expense_requests" baseColumnNames="project_id" referencedTableName="projects" referencedColumnNames="id" constraintName="fk_expense_project"/>
+
+        <!-- Expense Item Relations -->
+        <addForeignKeyConstraint baseTableName="expense_item" baseColumnNames="request_id" referencedTableName="expense_requests" referencedColumnNames="id" constraintName="fk_item_request"/>
+
+        <!-- Request History Relations -->
+        <addForeignKeyConstraint baseTableName="request_history" baseColumnNames="request_id" referencedTableName="expense_requests" referencedColumnNames="id" constraintName="fk_history_request"/>
+        <addForeignKeyConstraint baseTableName="request_history" baseColumnNames="actor_id" referencedTableName="users" referencedColumnNames="id" constraintName="fk_history_actor"/>
+
+        <!-- Rule Relations -->
+        <addForeignKeyConstraint baseTableName="rule" baseColumnNames="role_id" referencedTableName="roles" referencedColumnNames="id" constraintName="fk_rule_role"/>
+        <addForeignKeyConstraint baseTableName="rule" baseColumnNames="project_id" referencedTableName="projects" referencedColumnNames="id" constraintName="fk_rule_project"/>
+
+        <!-- Approval Relations -->
+        <addForeignKeyConstraint baseTableName="approval" baseColumnNames="expense_request_id" referencedTableName="expense_requests" referencedColumnNames="id" constraintName="fk_approval_request"/>
+        <addForeignKeyConstraint baseTableName="approval" baseColumnNames="approver_id" referencedTableName="users" referencedColumnNames="id" constraintName="fk_approval_approver"/>
+
+        <!-- Anomaly Flag Relations -->
+        <addForeignKeyConstraint baseTableName="anomaly_flag" baseColumnNames="expense_request_id" referencedTableName="expense_requests" referencedColumnNames="id" constraintName="fk_anomaly_request"/>
+        <addForeignKeyConstraint baseTableName="anomaly_flag" baseColumnNames="rule_id" referencedTableName="rule" referencedColumnNames="id" constraintName="fk_anomaly_rule"/>
+
+        <!-- User Project Relations -->
+        <addForeignKeyConstraint baseTableName="user_projects" baseColumnNames="user_id" referencedTableName="users" referencedColumnNames="id" constraintName="fk_up_user"/>
+        <addForeignKeyConstraint baseTableName="user_projects" baseColumnNames="project_id" referencedTableName="projects" referencedColumnNames="id" constraintName="fk_up_project"/>
+
+        <!-- Project Budget History Relations -->
+        <addForeignKeyConstraint baseTableName="project_budget_history" baseColumnNames="project_id" referencedTableName="projects" referencedColumnNames="id" constraintName="fk_pbh_project"/>
+        <addForeignKeyConstraint baseTableName="project_budget_history" baseColumnNames="user_id" referencedTableName="users" referencedColumnNames="id" constraintName="fk_pbh_user"/>
+
+    </changeSet>
+
+</databaseChangeLog>

@@ -46,9 +46,9 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Cho phép frontend từ localhost:3000 hoặc bất kỳ cổng nào khác mà bạn dùng
+    
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:5173")); // Thêm các cổng frontend của bạn
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -82,16 +82,20 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
 
                         .requestMatchers("/h2-console/**").permitAll()
-                        .requestMatchers("/api/auth/**").permitAll() // Cho phép tất cả truy cập /api/auth (login)
+                        .requestMatchers("/api/auth/**").permitAll() 
+
+                        .requestMatchers("/api/zoho/**").permitAll() 
+
+                        .requestMatchers("/api/qbo/**").permitAll()
 
                         // EPIC 01
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
                         // EPIC 02, 05
-                        .requestMatchers("/api/expenses/**").hasAnyRole("EMPLOYEE", "MANAGER", "FINANCE")
+                        .requestMatchers("/api/expenses/**").hasAnyRole("ADMIN","EMPLOYEE", "MANAGER", "FINANCE")
 
                         // EPIC 03, 05
-                        .requestMatchers("/api/manager/**").hasRole("MANAGER")
+                        .requestMatchers("/api/manager/**").hasAnyRole("MANAGER", "FINANCE")
 
                         // EPIC 04, 05
                         .requestMatchers("/api/finance/**").hasRole("FINANCE")
